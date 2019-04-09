@@ -2789,15 +2789,15 @@ int main(int argc, char **argv)
 			cxwii->refresh_all();
 			refresh();
 
-			ret = xwii_iface_open(cxwii->iface,
-					      xwii_iface_available(cxwii->iface) |
+			ret = xwii_iface_open(iface,
+					      xwii_iface_available(iface) |
 					      XWII_IFACE_WRITABLE);
 			if (ret)
 				cxwii->print_error("Error: Cannot open interface: %d",
 					    ret);
 
-			ret = cxwii->run_iface(cxwii->iface);
-			xwii_iface_unref(cxwii->iface);
+			ret = cxwii->run_iface(iface);
+			xwii_iface_unref(iface);
 			if (ret) {
 				cxwii->print_error("Program failed; press any key to exit");
 				refresh();
