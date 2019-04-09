@@ -1,0 +1,51 @@
+# depslib dependency file v1.0
+1554812907 source:/home/vdev/Documents/test/main.cpp
+	<errno.h>
+	<fcntl.h>
+	<inttypes.h>
+	<math.h>
+	<ncurses.h>
+	<poll.h>
+	<stdarg.h>
+	<stdbool.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/time.h>
+	<time.h>
+	<unistd.h>
+	"xwiimote.h"
+
+1554804629 /home/vdev/Documents/test/xwiimote.h
+	<stdbool.h>
+	<stdint.h>
+	<stdlib.h>
+	<sys/time.h>
+	<time.h>
+
+1554812907 source:/home/netpipe/Desktop/xwiimote_lib/test/main.cpp
+	<errno.h>
+	<fcntl.h>
+	<inttypes.h>
+	<math.h>
+	<ncurses.h>
+	<poll.h>
+	<stdarg.h>
+	<stdbool.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/time.h>
+	<time.h>
+	<unistd.h>
+	"xwiimote.h"
+
+1554804629 /home/netpipe/Desktop/xwiimote_lib/test/xwiimote.h
+	<stdbool.h>
+	<stdint.h>
+	<stdlib.h>
+	<sys/time.h>
+	<time.h>
+
