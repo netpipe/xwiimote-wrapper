@@ -41,9 +41,9 @@ class xwii{
 	~xwii();
 	xwii();
 	public:
-	static struct xwii_iface *iface;
-	static unsigned int mode;
-	static bool freeze;
+	struct xwii_iface *iface;
+	int mode;
+	bool freeze;
 	static void print_info(const char *format, ...);
 	static void print_error(const char *format, ...);
 	static void key_show(const struct xwii_event *event);
@@ -109,12 +109,13 @@ class xwii{
 	static char *get_dev(int num);
 
 	static int32_t mp_x, mp_y;
-	static bool on;
+	bool on;
 	static unsigned int num;
 
-    static bool led_state[4];
+    bool led_state[4];
 };
 
+xwii *cxwii;
 
 static struct xwii_iface *iface;
 static unsigned int mode = MODE_ERROR;
@@ -143,14 +144,14 @@ void xwii::print_error(const char *format, ...)
 
 	va_start(list, format);
 	vsnprintf(str, sizeof(str), format, list);
-	if (mode == MODE_EXTENDED)
+	if (cxwii->mode == MODE_EXTENDED)
 		str[sizeof(str) - 1] = 0;
 	else
 		str[58] = 0;
 	va_end(list);
 
 	mvprintw(23, 22, "                                                          ");
-	if (mode == MODE_EXTENDED)
+	if (cxwii->mode == MODE_EXTENDED)
 		mvprintw(23, 80, "                                                                                ");
 	mvprintw(23, 22, "%s", str);
 	refresh();
@@ -227,12 +228,12 @@ void xwii::key_toggle(void)
 {
 	int ret;
 
-	if (xwii_iface_opened(iface) & XWII_IFACE_CORE) {
-		xwii_iface_close(iface, XWII_IFACE_CORE);
+	if (xwii_iface_opened(cxwii->iface) & XWII_IFACE_CORE) {
+		xwii_iface_close(cxwii->iface, XWII_IFACE_CORE);
 		key_clear();
 		print_info("Info: Disable key events");
 	} else {
-		ret = xwii_iface_open(iface, XWII_IFACE_CORE |
+		ret = xwii_iface_open(cxwii->iface, XWII_IFACE_CORE |
 					     XWII_IFACE_WRITABLE);
 		if (ret)
 			print_error("Error: Cannot enable key events: %d", ret);
@@ -596,12 +597,12 @@ void xwii::accel_toggle(void)
 {
 	int ret;
 
-	if (xwii_iface_opened(iface) & XWII_IFACE_ACCEL) {
-		xwii_iface_close(iface, XWII_IFACE_ACCEL);
+	if (xwii_iface_opened(cxwii->iface) & XWII_IFACE_ACCEL) {
+		xwii_iface_close(cxwii->iface, XWII_IFACE_ACCEL);
 		accel_clear();
 		print_info("Info: Disable accelerometer");
 	} else {
-		ret = xwii_iface_open(iface, XWII_IFACE_ACCEL);
+		ret = xwii_iface_open(cxwii->iface, XWII_IFACE_ACCEL);
 		if (ret)
 			print_error("Error: Cannot enable accelerometer: %d",
 				    ret);
@@ -724,12 +725,12 @@ void xwii::ir_toggle(void)
 {
 	int ret;
 
-	if (xwii_iface_opened(iface) & XWII_IFACE_IR) {
-		xwii_iface_close(iface, XWII_IFACE_IR);
+	if (xwii_iface_opened(cxwii->iface) & XWII_IFACE_IR) {
+		xwii_iface_close(cxwii->iface, XWII_IFACE_IR);
 		ir_clear();
 		print_info("Info: Disable IR");
 	} else {
-		ret = xwii_iface_open(iface, XWII_IFACE_IR);
+		ret = xwii_iface_open(cxwii->iface, XWII_IFACE_IR);
 		if (ret)
 			print_error("Error: Cannot enable IR: %d",
 				    ret);
@@ -748,11 +749,11 @@ void xwii::mp_show(const struct xwii_event *event)
 	int32_t x, y, z, factor, i;
 
 	if (mp_do_refresh) {
-		xwii_iface_get_mp_normalization(iface, &x, &y, &z, &factor);
+		xwii_iface_get_mp_normalization(cxwii->iface, &x, &y, &z, &factor);
 		x = event->v.abs[0].x + x;
 		y = event->v.abs[0].y + y;
 		z = event->v.abs[0].z + z;
-		xwii_iface_set_mp_normalization(iface, x, y, z, factor);
+		xwii_iface_set_mp_normalization(cxwii->iface, x, y, z, factor);
 	}
 
 	x = event->v.abs[0].x;
@@ -813,12 +814,12 @@ void xwii::mp_toggle(void)
 {
 	int ret;
 
-	if (xwii_iface_opened(iface) & XWII_IFACE_MOTION_PLUS) {
-		xwii_iface_close(iface, XWII_IFACE_MOTION_PLUS);
+	if (xwii_iface_opened(cxwii->iface) & XWII_IFACE_MOTION_PLUS) {
+		xwii_iface_close(cxwii->iface, XWII_IFACE_MOTION_PLUS);
 		mp_clear();
 		print_info("Info: Disable Motion Plus");
 	} else {
-		ret = xwii_iface_open(iface, XWII_IFACE_MOTION_PLUS);
+		ret = xwii_iface_open(cxwii->iface, XWII_IFACE_MOTION_PLUS);
 		if (ret)
 			print_error("Error: Cannot enable MP: %d",
 				    ret);
@@ -831,13 +832,13 @@ void xwii::mp_normalization_toggle(void)
 {
 	int32_t x, y, z, factor;
 
-	xwii_iface_get_mp_normalization(iface, &x, &y, &z, &factor);
+	xwii_iface_get_mp_normalization(cxwii->iface, &x, &y, &z, &factor);
 	if (!factor) {
-		xwii_iface_set_mp_normalization(iface, x, y, z, 50);
+		xwii_iface_set_mp_normalization(cxwii->iface, x, y, z, 50);
 		print_info("Info: Enable MP Norm: (%i:%i:%i)",
 			    (int)x, (int)y, (int)z);
 	} else {
-		xwii_iface_set_mp_normalization(iface, x, y, z, 0);
+		xwii_iface_set_mp_normalization(cxwii->iface, x, y, z, 0);
 		print_info("Info: Disable MP Norm: (%i:%i:%i)",
 			    (int)x, (int)y, (int)z);
 	}
@@ -1286,12 +1287,12 @@ void xwii::nunchuk_toggle(void)
 {
 	int ret;
 
-	if (xwii_iface_opened(iface) & XWII_IFACE_NUNCHUK) {
-		xwii_iface_close(iface, XWII_IFACE_NUNCHUK);
+	if (xwii_iface_opened(cxwii->iface) & XWII_IFACE_NUNCHUK) {
+		xwii_iface_close(cxwii->iface, XWII_IFACE_NUNCHUK);
 		nunchuk_clear();
 		print_info("Info: Disable Nunchuk");
 	} else {
-		ret = xwii_iface_open(iface, XWII_IFACE_NUNCHUK);
+		ret = xwii_iface_open(cxwii->iface, XWII_IFACE_NUNCHUK);
 		if (ret)
 			print_error("Error: Cannot enable Nunchuk: %d",
 				    ret);
@@ -1333,12 +1334,12 @@ void xwii::bboard_toggle(void)
 {
 	int ret;
 
-	if (xwii_iface_opened(iface) & XWII_IFACE_BALANCE_BOARD) {
-		xwii_iface_close(iface, XWII_IFACE_BALANCE_BOARD);
+	if (xwii_iface_opened(cxwii->iface) & XWII_IFACE_BALANCE_BOARD) {
+		xwii_iface_close(cxwii->iface, XWII_IFACE_BALANCE_BOARD);
 		bboard_clear();
 		print_info("Info: Disable Balance Board");
 	} else {
-		ret = xwii_iface_open(iface, XWII_IFACE_BALANCE_BOARD);
+		ret = xwii_iface_open(cxwii->iface, XWII_IFACE_BALANCE_BOARD);
 		if (ret)
 			print_error("Error: Cannot enable Balance Board: %d",
 				    ret);
@@ -1592,12 +1593,12 @@ void xwii::pro_toggle(void)
 {
 	int ret;
 
-	if (xwii_iface_opened(iface) & XWII_IFACE_PRO_CONTROLLER) {
-		xwii_iface_close(iface, XWII_IFACE_PRO_CONTROLLER);
+	if (xwii_iface_opened(cxwii->iface) & XWII_IFACE_PRO_CONTROLLER) {
+		xwii_iface_close(cxwii->iface, XWII_IFACE_PRO_CONTROLLER);
 		pro_clear();
 		print_info("Info: Disable Pro Controller");
 	} else {
-		ret = xwii_iface_open(iface, XWII_IFACE_PRO_CONTROLLER);
+		ret = xwii_iface_open(cxwii->iface, XWII_IFACE_PRO_CONTROLLER);
 		if (ret)
 			print_error("Error: Cannot enable Pro Controller: %d",
 				    ret);
@@ -1676,12 +1677,12 @@ void xwii::classic_toggle(void)
 {
 	int ret;
 
-	if (xwii_iface_opened(iface) & XWII_IFACE_CLASSIC_CONTROLLER) {
-		xwii_iface_close(iface, XWII_IFACE_CLASSIC_CONTROLLER);
+	if (xwii_iface_opened(cxwii->iface) & XWII_IFACE_CLASSIC_CONTROLLER) {
+		xwii_iface_close(cxwii->iface, XWII_IFACE_CLASSIC_CONTROLLER);
 		classic_clear();
 		print_info("Info: Disable Classic Controller");
 	} else {
-		ret = xwii_iface_open(iface, XWII_IFACE_CLASSIC_CONTROLLER);
+		ret = xwii_iface_open(cxwii->iface, XWII_IFACE_CLASSIC_CONTROLLER);
 		if (ret)
 			print_error("Error: Cannot enable Classic Controller: %d",
 				    ret);
@@ -1917,12 +1918,12 @@ void xwii::guit_toggle(void)
 {
 	int ret;
 
-	if (xwii_iface_opened(iface) & XWII_IFACE_GUITAR) {
-		xwii_iface_close(iface, XWII_IFACE_GUITAR);
+	if (xwii_iface_opened(cxwii->iface) & XWII_IFACE_GUITAR) {
+		xwii_iface_close(cxwii->iface, XWII_IFACE_GUITAR);
 		guit_clear();
 		print_info("Info: Disable Guitar Controller");
 	} else {
-		ret = xwii_iface_open(iface, XWII_IFACE_GUITAR);
+		ret = xwii_iface_open(cxwii->iface, XWII_IFACE_GUITAR);
 		if (ret)
 			print_error("Error: Cannot enable Guitar Controller: %d",
 				    ret);
@@ -2184,12 +2185,12 @@ void xwii::drums_toggle(void)
 {
 	int ret;
 
-	if (xwii_iface_opened(iface) & XWII_IFACE_DRUMS) {
-		xwii_iface_close(iface, XWII_IFACE_DRUMS);
+	if (xwii_iface_opened(cxwii->iface) & XWII_IFACE_DRUMS) {
+		xwii_iface_close(cxwii->iface, XWII_IFACE_DRUMS);
 		drums_clear();
 		print_info("Info: Disable Drums Controller");
 	} else {
-		ret = xwii_iface_open(iface, XWII_IFACE_DRUMS);
+		ret = xwii_iface_open(cxwii->iface, XWII_IFACE_DRUMS);
 		if (ret)
 			print_error("Error: Cannot enable Drums Controller: %d",
 				    ret);
@@ -2211,7 +2212,7 @@ void xwii::rumble_toggle(void)
 	int ret;
 
 	on = !on;
-	ret = xwii_iface_rumble(iface, on);
+	ret = xwii_iface_rumble(cxwii->iface, on);
 	if (ret) {
 		print_error("Error: Cannot toggle rumble motor: %d", ret);
 		on = !on;
@@ -2230,24 +2231,24 @@ void xwii::led_toggle(int n)
 {
 	int ret;
 
-	led_state[n] = !led_state[n];
-	ret = xwii_iface_set_led(iface, XWII_LED(n+1), led_state[n]);
+	cxwii->led_state[n] = !cxwii->led_state[n];
+	ret = xwii_iface_set_led(cxwii->iface, XWII_LED(n+1), cxwii->led_state[n]);
 	if (ret) {
 		print_error("Error: Cannot toggle LED %i: %d", n+1, ret);
-		led_state[n] = !led_state[n];
+		cxwii->led_state[n] = !cxwii->led_state[n];
 	}
-	led_show(n, led_state[n]);
+	led_show(n, cxwii->led_state[n]);
 }
 
 void xwii::led_refresh(int n)
 {
 	int ret;
 
-	ret = xwii_iface_get_led(iface, XWII_LED(n+1), &led_state[n]);
+	ret = xwii_iface_get_led(cxwii->iface, XWII_LED(n+1), &cxwii->led_state[n]);
 	if (ret)
 		print_error("Error: Cannot read LED state");
 	else
-		led_show(n, led_state[n]);
+		led_show(n, cxwii->led_state[n]);
 }
 
 /* battery status */
@@ -2268,7 +2269,7 @@ void xwii::battery_refresh(void)
 	int ret;
 	uint8_t capacity;
 
-	ret = xwii_iface_get_battery(iface, &capacity);
+	ret = xwii_iface_get_battery(cxwii->iface, &capacity);
 	if (ret)
 		print_error("Error: Cannot read battery capacity");
 	else
@@ -2282,7 +2283,7 @@ void xwii::devtype_refresh(void)
 	int ret;
 	char *name;
 
-	ret = xwii_iface_get_devtype(iface, &name);
+	ret = xwii_iface_get_devtype(cxwii->iface, &name);
 	if (ret) {
 		print_error("Error: Cannot read device type");
 	} else {
@@ -2299,7 +2300,7 @@ void xwii::extension_refresh(void)
 	int ret;
 	char *name;
 
-	ret = xwii_iface_get_extension(iface, &name);
+	ret = xwii_iface_get_extension(cxwii->iface, &name);
 	if (ret) {
 		print_error("Error: Cannot read extension type");
 	} else {
@@ -2308,7 +2309,7 @@ void xwii::extension_refresh(void)
 		free(name);
 	}
 
-	if (xwii_iface_available(iface) & XWII_IFACE_MOTION_PLUS)
+	if (xwii_iface_available(cxwii->iface) & XWII_IFACE_MOTION_PLUS)
 		mvprintw(7, 77, "M+");
 	else
 		mvprintw(7, 77, "  ");
@@ -2449,17 +2450,17 @@ void xwii::setup_ext_window(void)
 void xwii::handle_resize(void)
 {
 	if (LINES < 24 || COLS < 80) {
-		mode = MODE_ERROR;
+		cxwii->mode = MODE_ERROR;
 		erase();
 		mvprintw(0, 0, "Error: Screen smaller than 80x24; no view");
 	} else if (LINES < 48 || COLS < 160) {
-		mode = MODE_NORMAL;
+		cxwii->mode = MODE_NORMAL;
 		erase();
 		setup_window();
 		refresh_all();
 		print_info("Info: Screen smaller than 160x48; limited view");
 	} else {
-		mode = MODE_EXTENDED;
+		cxwii->mode = MODE_EXTENDED;
 		erase();
 		setup_ext_window();
 		setup_window();
@@ -2477,7 +2478,7 @@ void xwii::handle_watch(void)
 
 	print_info("Info: Watch Event #%u", ++num);
 
-	ret = xwii_iface_open(iface, xwii_iface_available(iface) |
+	ret = xwii_iface_open(cxwii->iface, xwii_iface_available(cxwii->iface) |
 				     XWII_IFACE_WRITABLE);
 	if (ret)
 		print_error("Error: Cannot open interface: %d", ret);
@@ -2489,8 +2490,8 @@ void xwii::handle_watch(void)
 
 void xwii::freeze_toggle(void)
 {
-	freeze = !freeze;
-	print_info("Info: %sreeze screen", freeze ? "F" : "Unf");
+	cxwii->freeze = !cxwii->freeze;
+	print_info("Info: %sreeze screen", cxwii->freeze ? "F" : "Unf");
 }
 
 int xwii::keyboard(void)
@@ -2575,11 +2576,11 @@ int xwii::run_iface(struct xwii_iface *iface)
 	memset(fds, 0, sizeof(fds));
 	fds[0].fd = 0;
 	fds[0].events = POLLIN;
-	fds[1].fd = xwii_iface_get_fd(iface);
+	fds[1].fd = xwii_iface_get_fd(cxwii->iface);
 	fds[1].events = POLLIN;
 	fds_num = 2;
 
-	ret = xwii_iface_watch(iface, true);
+	ret = xwii_iface_watch(cxwii->iface, true);
 	if (ret)
 		print_error("Error: Cannot initialize hotplug watch descriptor");
 
@@ -2593,14 +2594,14 @@ int xwii::run_iface(struct xwii_iface *iface)
 			}
 		}
 
-		ret = xwii_iface_dispatch(iface, &event, sizeof(event));
+		ret = xwii_iface_dispatch(cxwii->iface, &event, sizeof(event));
 		if (ret) {
 			if (ret != -EAGAIN) {
 				print_error("Error: Read failed with err:%d",
 					    ret);
 				break;
 			}
-		} else if (!freeze) {
+		} else if (!cxwii->freeze) {
 			switch (event.type) {
 			case XWII_EVENT_GONE:
 				print_info("Info: Device gone");
@@ -2612,52 +2613,52 @@ int xwii::run_iface(struct xwii_iface *iface)
 				handle_watch();
 				break;
 			case XWII_EVENT_KEY:
-				if (mode != MODE_ERROR)
+				if (cxwii->mode != MODE_ERROR)
 					key_show(&event);
 				break;
 			case XWII_EVENT_ACCEL:
-				if (mode == MODE_EXTENDED)
+				if (cxwii->mode == MODE_EXTENDED)
 					accel_show_ext(&event);
-				if (mode != MODE_ERROR)
+				if (cxwii->mode != MODE_ERROR)
 					accel_show(&event);
 				break;
 			case XWII_EVENT_IR:
-				if (mode == MODE_EXTENDED)
+				if (cxwii->mode == MODE_EXTENDED)
 					ir_show_ext(&event);
-				if (mode != MODE_ERROR)
+				if (cxwii->mode != MODE_ERROR)
 					ir_show(&event);
 				break;
 			case XWII_EVENT_MOTION_PLUS:
-				if (mode != MODE_ERROR)
+				if (cxwii->mode != MODE_ERROR)
 					mp_show(&event);
 				break;
 			case XWII_EVENT_NUNCHUK_KEY:
 			case XWII_EVENT_NUNCHUK_MOVE:
-				if (mode == MODE_EXTENDED)
+				if (cxwii->mode == MODE_EXTENDED)
 					nunchuk_show_ext(&event);
 				break;
 			case XWII_EVENT_CLASSIC_CONTROLLER_KEY:
 			case XWII_EVENT_CLASSIC_CONTROLLER_MOVE:
-				if (mode == MODE_EXTENDED)
+				if (cxwii->mode == MODE_EXTENDED)
 					classic_show_ext(&event);
 				break;
 			case XWII_EVENT_BALANCE_BOARD:
-				if (mode == MODE_EXTENDED)
+				if (cxwii->mode == MODE_EXTENDED)
 					bboard_show_ext(&event);
 				break;
 			case XWII_EVENT_PRO_CONTROLLER_KEY:
 			case XWII_EVENT_PRO_CONTROLLER_MOVE:
-				if (mode == MODE_EXTENDED)
+				if (cxwii->mode == MODE_EXTENDED)
 					pro_show_ext(&event);
 				break;
 			case XWII_EVENT_GUITAR_KEY:
 			case XWII_EVENT_GUITAR_MOVE:
-				if (mode == MODE_EXTENDED)
+				if (cxwii->mode == MODE_EXTENDED)
 					guit_show_ext(&event);
 				break;
 			case XWII_EVENT_DRUMS_KEY:
 			case XWII_EVENT_DRUMS_MOVE:
-				if (mode == MODE_EXTENDED)
+				if (cxwii->mode == MODE_EXTENDED)
 					drums_show_ext(&event);
 				break;
 			}
@@ -2719,4 +2720,94 @@ char *xwii::get_dev(int num)
 		printf("Cannot find device with number #%d\n", num);
 
 	return ent;
+}
+
+
+int main(int argc, char **argv)
+{
+
+	int ret = 0;
+	char *path = NULL;
+
+	if (argc < 2 || !strcmp(argv[1], "-h")) {
+		printf("Usage:\n");
+		printf("\txwiishow [-h]: Show help\n");
+		printf("\txwiishow list: List connected devices\n");
+		printf("\txwiishow <num>: Show device with number #num\n");
+		printf("\txwiishow /sys/path/to/device: Show given device\n");
+		printf("UI commands:\n");
+		printf("\tq: Quit application\n");
+		printf("\tf: Freeze/Unfreeze screen\n");
+		printf("\ts: Refresh static values (like battery or calibration)\n");
+		printf("\tk: Toggle key events\n");
+		printf("\tr: Toggle rumble motor\n");
+		printf("\ta: Toggle accelerometer\n");
+		printf("\ti: Toggle IR camera\n");
+		printf("\tm: Toggle motion plus\n");
+		printf("\tn: Toggle normalization for motion plus\n");
+		printf("\tb: Toggle balance board\n");
+		printf("\tp: Toggle pro controller\n");
+		printf("\tg: Toggle guitar controller\n");
+		printf("\td: Toggle drums controller\n");
+		printf("\t1: Toggle LED 1\n");
+		printf("\t2: Toggle LED 2\n");
+		printf("\t3: Toggle LED 3\n");
+		printf("\t4: Toggle LED 4\n");
+		ret = -1;
+	} else if (!strcmp(argv[1], "list")) {
+		printf("Listing connected Wii Remote devices:\n");
+		ret = cxwii->enumerate();
+		printf("End of device list\n");
+	} else {
+		if (argv[1][0] != '/')
+			path = cxwii->get_dev(atoi(argv[1]));
+
+		ret = xwii_iface_new(&iface, path ? path : argv[1]);
+		free(path);
+		if (ret) {
+			printf("Cannot create xwii_iface '%s' err:%d\n",
+								argv[1], ret);
+		} else {
+
+			initscr();
+			curs_set(0);
+			raw();
+			noecho();
+			timeout(0);
+
+			cxwii->handle_resize();
+			cxwii->key_clear();
+			cxwii->accel_clear();
+			cxwii->ir_clear();
+			cxwii->mp_clear();
+			cxwii->nunchuk_clear();
+			cxwii->classic_clear();
+			cxwii->bboard_clear();
+			cxwii->pro_clear();
+			cxwii->guit_clear();
+			cxwii->drums_clear();
+			cxwii->refresh_all();
+			refresh();
+
+			ret = xwii_iface_open(cxwii->iface,
+					      xwii_iface_available(cxwii->iface) |
+					      XWII_IFACE_WRITABLE);
+			if (ret)
+				cxwii->print_error("Error: Cannot open interface: %d",
+					    ret);
+
+			ret = cxwii->run_iface(cxwii->iface);
+			xwii_iface_unref(cxwii->iface);
+			if (ret) {
+				cxwii->print_error("Program failed; press any key to exit");
+				refresh();
+				timeout(-1);
+				getch();
+			}
+			endwin();
+		}
+	}
+
+	return abs(ret);
+
 }
