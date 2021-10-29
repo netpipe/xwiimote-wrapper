@@ -1,0 +1,99 @@
+# depslib dependency file v1.0
+1631206903 source:/home/netpipe/Desktop/xwiimote-wrapper/xwiimote/xwiimote/core.c
+	<errno.h>
+	<fcntl.h>
+	<inttypes.h>
+	<libudev.h>
+	<linux/input.h>
+	<stdbool.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/epoll.h>
+	<sys/ioctl.h>
+	<unistd.h>
+	"xwiimote.h"
+
+1631206903 /home/netpipe/Desktop/xwiimote-wrapper/xwiimote/xwiimote/xwiimote.h
+	<stdbool.h>
+	<stdint.h>
+	<stdlib.h>
+	<sys/time.h>
+	<time.h>
+
+1631206903 source:/home/netpipe/Desktop/xwiimote-wrapper/xwiimote/xwiimote/monitor.c
+	<fcntl.h>
+	<libudev.h>
+	<stdbool.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"xwiimote.h"
+
+1631393997 source:/home/netpipe/Desktop/xwiimote-wrapper/xwiimote/xwiimote/xwiimotemain.cpp
+	<errno.h>
+	<fcntl.h>
+	<inttypes.h>
+	<math.h>
+	<ncurses.h>
+	<poll.h>
+	<stdarg.h>
+	<stdbool.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/time.h>
+	<time.h>
+	<unistd.h>
+	"xwiimote.h"
+
+1631206903 source:/home/netpipe/Desktop/untitled folder 3/xwiimote-wrapper/xwiimote/xwiimote/core.c
+	<errno.h>
+	<fcntl.h>
+	<inttypes.h>
+	<libudev.h>
+	<linux/input.h>
+	<stdbool.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/epoll.h>
+	<sys/ioctl.h>
+	<unistd.h>
+	"xwiimote.h"
+
+1631206903 /home/netpipe/Desktop/untitled folder 3/xwiimote-wrapper/xwiimote/xwiimote/xwiimote.h
+	<stdbool.h>
+	<stdint.h>
+	<stdlib.h>
+	<sys/time.h>
+	<time.h>
+
+1631206903 source:/home/netpipe/Desktop/untitled folder 3/xwiimote-wrapper/xwiimote/xwiimote/monitor.c
+	<fcntl.h>
+	<libudev.h>
+	<stdbool.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"xwiimote.h"
+
+1635545843 source:/home/netpipe/Desktop/untitled folder 3/xwiimote-wrapper/xwiimote/xwiimote/xwiimotemain.cpp
+	<errno.h>
+	<fcntl.h>
+	<inttypes.h>
+	<math.h>
+	<ncurses.h>
+	<poll.h>
+	<stdarg.h>
+	<stdbool.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/time.h>
+	<time.h>
+	<unistd.h>
+	"xwiimote.h"
+
